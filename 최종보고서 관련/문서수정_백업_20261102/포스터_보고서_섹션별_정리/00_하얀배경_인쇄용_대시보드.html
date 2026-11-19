@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>부산 연안 CCTV · 해양기상 · 연안사고 통합 분석 대시보드</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --card: #ffffff;
+        --border: #cbd5e1;
+        --fg: #0f172a;
+        --muted: #475569;
+        --primary: #ea7100;
+        --emerald: #15803d;
+        --amber: #ea7100;
+        --rose: #dc2626;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Pretendard",
+          "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.5;
+      }
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+      .header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      h1 {
+        margin: 0;
+        font-size: 22px;
+      }
+      .subtitle {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tab-btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--fg);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .tab-btn.active {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+      }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+      }
+      .kpi-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .kpi-val {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 4px 0;
+      }
+      .kpi-sub {
+        font-size: 12px;
+      }
+      .bar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+      .bar-name {
+        width: 80px;
+        font-weight: 600;
+      }
+      .bar-track {
+        flex: 1;
+        height: 18px;
+        background: #f1f5f9;
+        border-radius: 6px;
+        overflow: hidden;
+        display: flex;
+        border: 1px solid var(--border);
+      }
+      .bar-cur {
+        background: var(--amber);
+        height: 100%;
+      }
+      .bar-gain {
+        background: #0284c7;
+        height: 100%;
+      }
+      .bar-stat {
+        width: 170px;
+        text-align: right;
+        font-size: 12px;
+        color: v¬øar(--muted);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th,
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+        background: #f8fafc;
+        position: sticky;
+        top: 0;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .hidden {
+        display: none;
+      }
+      .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .badge-t1 {
+        color: var(--rose);
+        font-weight: 600;
+      }
+      .badge-t2 {
+        color: var(--amber);
+        font-weight: 600;
+      }
+      .badge-t3 {
+        color: var(--emerald);
+        font-weight: 600;
+      }
+      .map-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .map-card img {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <h1>부산 연안 CCTV · 해양기상 · 연안사고 통합 분석 대시보드</h1>
+          <p class="subtitle">
+            1,832개 해안구간(5,873.6ha) · 통합 CCTV 12,808곳(가시권 1,782곳) ·
+            연안사고 2,138건 · 신규 최적 입지 50곳
+          </p>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="showTab('t1')" id="b-t1">
+            1. 기존 분포·구군별 커버리지
+          </button>
+          <button class="tab-btn" onclick="showTab('t2')" id="b-t2">
+            2. 사각지대·해양기상 위험도
+          </button>
+          <button class="tab-btn" onclick="showTab('t3')" id="b-t3">
+            3. 배치 시나리오·지도 비교
+          </button>
+          <button class="tab-btn" onclick="showTab('t4')" id="b-t4">
+            4. 신규 50곳 전체 명세·각도
+          </button>
+        </div>
+      </div>
+
+      <div id="p-t1">
+        <div class="kpi-grid">
+          <div class="card">
+            <div class="kpi-label">4개 출처 통합 고유 CCTV</div>
+            <div class="kpi-val">12,808곳</div>
+            <div class="kpi-sub" style="color: var(--emerald)">
+              500m 반경 커버리지 70.6% (1,293구간)
+            </div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">해안 가시권 도달 (1km 내 3,856곳 중)</div>
+            <div class="kpi-val">1,782곳</div>
+            <div class="kpi-sub" style="color: var(--muted)">
+              확실 665(37.3%) · 조건부 867(48.7%) · 제외 250(14.0%)
+            </div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">3D 지형 반영 실제 가시 커버율</div>
+            <div class="kpi-val" style="color: var(--amber)">25.1%</div>
+            <div class="kpi-sub" style="color: var(--muted)">
+              5,873.6ha 중 1,474.1ha 커버 (사각 74.9%)
+            </div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">3D 미커버 실질 사각지대 비율</div>
+            <div class="kpi-val" style="color: var(--primary)">74.9%</div>
+            <div class="kpi-sub" style="color: var(--primary)">
+              5,873.6ha 중 4,399.5ha가 미커버 사각
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top: 0; font-size: 15px">
+            구·군별 기존 CCTV 현황: 3D 실제 가시 커버율(주황) vs 2D 500m 반경
+            착시 구간(회색/파랑)
+          </h3>
+          <div id="district-bars"></div>
+        </div>
+      </div>
+
+      <div id="p-t2" class="hidden">
+        <div class="kpi-grid">
+          <div class="card">
+            <div class="kpi-label">
+              핵심 고위험 사각(v4 34구간)의 500m 반경 착시
+            </div>
+            <div class="kpi-val" style="color: var(--rose)">
+              70.6% (24/34구간)
+            </div>
+            <div class="kpi-sub" style="color: var(--muted)">
+              반경 500m 내 CCTV가 있으나 지형·각도로 실제 가시율 0%
+            </div>
+          </div>
+          <div class="card">
+            <div class="kpi-label">부산 연안사고(2,138건) 기상 상태</div>
+            <div class="kpi-val" style="color: var(--amber)">
+              양호 92.5% (1,979건)
+            </div>
+            <div class="kpi-sub" style="color: var(--muted)">
+              항계 내(56.6%) 및 인적 부주의 집중 → 상시 감시 필수
+            </div>
+          </div>
+          <div class="card">
+            ¬
+            <div class="kpi-label">해양기상 관측소별 파고·풍속 임계치</div>
+            <div class="kpi-val" style="color: var(--primary)">
+              기장·오륙도 1.0m / 다대포 0.7m
+            </div>
+            <div class="kpi-sub" style="color: var(--muted)">
+              외해 1,036구간 · 내만 796구간 (풍속 공통 16.9m/s)
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top: 0; font-size: 15px">
+            해안유형별 위험지수 및 사각지대 비율 (육지부 설치대상 1,464구간)
+          </h3>
+          <table>
+            <thead>
+              <tr>
+                <th>해안유형</th>
+                <th class="text-right">구간 수</th>
+                <th class="text-right">평균 유형위험(T)</th>
+                <th class="text-right">평균 파랑노출(W)</th>
+                <th class="text-right">평균 위험지수</th>
+                <th class="text-right">고위험(4·5등급) 비율</th>
+                <th class="text-right">보수적 완전 사각(0%) 비율</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="badge-t1">방파제·테트라포드</td>
+                <td class="text-right">137구간</td>
+                <td class="text-right">0.90</td>
+                <td class="text-right">0.78</td>
+                <td class="text-right"><strong>0.808</strong></td>
+                <td class="text-right badge-t1">72.3% (99구간)</td>
+                <td class="text-right">25.5% (35구간)</td>
+              </tr>
+              <tr>
+                <td class="badge-t2">항포구</td>
+                <td class="text-right">180구간</td>
+                <td class="text-right">1.00</td>
+                <td class="text-right">0.67</td>
+                <td class="text-right"><strong>0.785</strong></td>
+                <td class="text-right badge-t2">59.4% (107구간)</td>
+                <td class="text-right">18.9% (34구간)</td>
+              </tr>
+              <tr>
+                <td style="color: var(--primary); font-weight: 600">갯바위</td>
+                <td class="text-right">350구간</td>
+                <td class="text-right">0.31</td>
+                <td class="text-right">0.78</td>
+                <td class="text-right">0.473</td>
+                <td class="text-right">0.0% (3등급 집중)</td>
+                <td class="text-right badge-t1">52.9% (185구간)</td>
+              </tr>
+              <tr>
+                <td>해안가 (모래·자갈 등)</td>
+                <td class="text-right">718구간</td>
+                <td class="text-right">0.29</td>
+                <td class="text-right">0.70</td>
+                <td class="text-right">0.434</td>
+                <td class="text-right">0.0%</td>
+                <td class="text-right">35.0% (251구간)</td>
+              </tr>
+              <tr>
+                <td style="color: var(--muted)">미분류 (기암·암벽 등)</td>
+                <td class="text-right">79구간</td>
+                <td class="text-right">0.47</td>
+                <td class="text-right">0.47</td>
+                <td class="text-right">0.445</td>
+                <td class="text-right">30.4% (24구간)</td>
+                <td class="text-right">49.4% (39구간)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="map-grid" style="margin-top: 16px">
+          <div class="card map-card">
+            <h4 style="margin: 0 0 8px; font-size: 14px">
+              부산 해역 연도별 연안사고 발생 추이 (2015~2024년 10개년,
+              행정안전부)
+            </h4>
+            <img
+              src="./분석배경/fig00_연도별_연안사고_발생추이_white.png"
+              alt="연도별 연안사고 추이"
+            />
+          </div>
+          <div class="card map-card">
+            <h4 style="margin: 0 0 8px; font-size: 14px">
+              부산 연안사고 기상 상태 및 발생 해역 분포
+            </h4>
+            <img
+              src="./분석배경/fig01_부산연안사고_기상및해역특성_white.png"
+              alt="연안사고 기상 및 해역 특성"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div id="p-t3" class="hidden">
+        <div class="card" style="margin-bottom: 16px">
+          <h3 style="margin-top: 0; font-size: 15px">
+            균등 배치 vs 위험도 가중 배치 성과 비교 (10 · 20 · 50대)
+          </h3>
+          <table>
+            <thead>
+              <tr>
+                <th>배치 방식</th>
+                <th class="text-right">신규 대수</th>
+                <th class="text-right">전체 해안 면적 커버율</th>
+                <th class="text-right">위험지수 가중 커버율</th>
+                <th class="text-right">핵심 고위험 사각(v4 34구간) 커버율</th>
+                <th>주요 배치 지역 (50대 기준)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>면적 균등 배치</td>
+                <td class="text-right">10대</td>
+                <td class="text-right">35.7%</td>
+                <td class="text-right">49.7%</td>
+                <td class="text-right">17.5%</td>
+                <td rowspan="3">
+                  강서(12)·사하(12)·기장(9)·남구(6) 등 서부산 광역 해안 편중
+                </td>
+              </tr>
+              <tr>
+                <td>면적 균등 배치</td>
+                <td class="text-right">20대</td>
+                <td class="text-right">74.9%</td>
+                <td class="text-right">53.1%</td>
+                <td class="text-right">28.5%</td>
+              </tr>
+              <tr>
+                <td>면적 균등 배치</td>
+                <td class="text-right"><strong>50대</strong></td>
+                <td class="text-right"><strong>45.6%</strong></td>
+                <td class="text-right"><strong>60.7%</strong></td>
+                <td class="text-right"><strong>47.8%</strong></td>
+              </tr>
+              <tr>
+                <td class="badge-t3">위험도 가중 배치 (권장)</td>
+                <td class="text-right">10대</td>
+                <td class="text-right">35.0%</td>
+                <td class="text-right">51.3%</td>
+                <td class="text-right badge-t3">37.6% (+20.1%p)</td>
+                <td rowspan="3">
+                  <strong>기장(14)·남구(7)·영도(7)·사하(6)·동구(5)</strong> 등
+                  고위험 방파제·항포구 집중
+                </td>
+              </tr>
+              <tr>
+                <td class="badge-t3">위험도 가중 배치 (권장)</td>
+                <td class="text-right">20대</td>
+                <td class="text-right">37.5%</td>
+                <td class="text-right">55.3%</td>
+                <td class="text-right badge-t3">46.7% (+18.2%p)</td>
+              </tr>
+              <tr>
+                <td class="badge-t3">위험도 가중 배치 (권장)</td>
+                <td class="text-right"><strong>50대</strong></td>
+                <td class="text-right"><strong>43.9%</strong></td>
+                <td class="text-right badge-t3">
+                  <strong>63.9% (+3.2%p)</strong>
+                </td>
+                <td class="text-right badge-t3">
+                  <strong>61.3% (+13.5%p)</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="map-grid">
+          <div class="card map-card">
+            <h4 style="margin: 0 0 8px; font-size: 14px">
+              부산 연안 3분류 가시 커버율 및 상위 50곳 촬영방향 지도
+            </h4>
+            <img
+              src="./분석결과/map01_부산전체_3분류가시커버율_및_상위50곳촬영방향.png"
+              alt="부산 상위 50곳 촬영방향 지도"
+            />
+          </div>
+          <div class="card map-card">
+            <h4 style="margin: 0 0 8px; font-size: 14px">
+              핵심 고위험 사각 34구간(v4) 및 위험도 가중 배치 상위 50곳
+            </h4>
+            <img
+              src="./분석결과/map02_핵심사각34구간_v4_및_위험가중상위50곳.png"
+              alt="v4 34구간 및 상위 50곳 지도"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div id="p-t4" class="hidden">
+        <div class="card">
+          <div class="filter-bar">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button
+                class="tab-btn active"
+                onclick="filterTable('ALL')"
+                id="ft-ALL"
+              >
+                전체 50곳 (+742.2ha)
+              </button>
+              <button
+                class="tab-btn"
+                onclick="filterTable('TYPE1')"
+                id="ft-TYPE1"
+              >
+                ① 해안 필수 직시형 (33곳)
+              </button>
+              <button
+                class="tab-btn"
+                onclick="filterTable('TYPE2')"
+                id="ft-TYPE2"
+              >
+                ② 해안·내륙 복합 PTZ (12곳)
+              </button>
+              <button
+                class="tab-btn"
+                onclick="filterTable('TYPE3')"
+                id="ft-TYPE3"
+              >
+                ③ 내륙·진입로 감시형 (5곳)
+              </button>
+            </div>
+            <div style="font-size: 12px; color: var(--muted)">
+              * 모든 50개 후보지 데이터 수록
+            </div>
+          </div>
+          <div style="max-height: 540px; overflow-y: auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>순위</th>
+                  <th>후보지 ID</th>
+                  <th>구·군</th>
+                  <th>중심 구간</th>
+                  <th>해안유형</th>
+                  <th>관측소(파고)</th>
+                  <th class="text-right">위험지수(등급)</th>
+                  <th class="text-right">추가 가시(ha)</th>
+                  <th class="text-right">500m 사고(중대)</th>
+                  <th>권장 촬영 각도 · 운영 유형</th>
+                </tr>
+              </thead>
+              <tbody id="sites-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const districts = [
+        { name: "수영구", cur: 99.6, omni: 100.0, gain: 0.4 },
+        { name: "기장군", cur: 57.2, omni: 83.5, gain: 26.3 },
+        { name: "중구", cur: 52.3, omni: 89.5, gain: 37.2 },
+        { name: "해운대구", cur: 39.9, omni: 100.0, gain: 60.1 },
+        { name: "서구", cur: 39.0, omni: 73.2, gain: 34.2 },
+        { name: "영도구", cur: 26.7, omni: 74.2, gain: 47.5 },
+        { name: "남구", cur: 15.1, omni: 80.5, gain: 65.4 },
+        { name: "동구", cur: 14.2, omni: 82.6, gain: 68.4 },
+        { name: "강서구", cur: 12.4, omni: 55.2, gain: 42.8 },
+        { name: "사하구", cur: 12.2, omni: 52.4, gain: 40.2 },
+      ];
+
+      const allSites = [
+        {
+          rank: 1,
+          id: "CAND_00584",
+          gu: "동구",
+          seg: "SEG_000270",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 24.3,
+          wt: 209.63,
+          touched: 5,
+          acc: "9건 (9건)",
+          acc_num: 9,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 2,
+          id: "CAND_00644",
+          gu: "중구",
+          seg: "SEG_001830",
+          coast: "해안가",
+          station: "오륙도(1.0m)",
+          risk: "0.527 (3등급)",
+          ha: 25.11,
+          wt: 204.92,
+          touched: 10,
+          acc: "3건 (3건)",
+          acc_num: 3,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 3,
+          id: "CAND_00231",
+          gu: "기장군",
+          seg: "SEG_000341",
+          coast: "항포구",
+          station: "기장(1.0m)",
+          risk: "1.000 (5등급)",
+          ha: 17.46,
+          wt: 169.15,
+          touched: 10,
+          acc: "11건 (6건)",
+          acc_num: 11,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 4,
+          id: "CAND_00027",
+          gu: "기장군",
+          seg: "SEG_000887",
+          coast: "방파제·테트라포드",
+          station: "기장(1.0m)",
+          risk: "0.948 (5등급)",
+          ha: 18.63,
+          wt: 163.03,
+          touched: 7,
+          acc: "2건 (0건)",
+          acc_num: 2,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 5,
+          id: "CAND_00521",
+          gu: "동구",
+          seg: "SEG_000853",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 16.65,
+          wt: 157.14,
+          touched: 6,
+          acc: "49건 (49건)",
+          acc_num: 49,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 6,
+          id: "CAND_00904",
+          gu: "영도구",
+          seg: "SEG_000014",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 15.66,
+          wt: 156.83,
+          touched: 8,
+          acc: "12건 (12건)",
+          acc_num: 12,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 7,
+          id: "CAND_00342",
+          gu: "해운대구",
+          seg: "SEG_000519",
+          coast: "방파제·테트라포드",
+          station: "기장(1.0m)",
+          risk: "0.948 (5등급)",
+          ha: 16.83,
+          wt: 154.84,
+          touched: 11,
+          acc: "26건 (22건)",
+          acc_num: 26,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 8,
+          id: "CAND_01003",
+          gu: "영도구",
+          seg: "SEG_001729",
+          coast: "방파제·테트라포드",
+          station: "오륙도(1.0m)",
+          risk: "0.919 (5등급)",
+          ha: 14.76,
+          wt: 128.78,
+          touched: 8,
+          acc: "3건 (3건)",
+          acc_num: 3,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 9,
+          id: "CAND_00005",
+          gu: "기장군",
+          seg: "SEG_000886",
+          coast: "방파제·테트라포드",
+          station: "기장(1.0m)",
+          risk: "0.948 (5등급)",
+          ha: 15.66,
+          wt: 127.4,
+          touched: 9,
+          acc: "0건 (0건)",
+          acc_num: 0,
+          type: "TYPE3",
+          label: "③ 내륙·진입로 감시형 (해안 직시 불필요)",
+        },
+        {
+          rank: 10,
+          id: "CAND_00500",
+          gu: "동구",
+          seg: "SEG_000855",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 11.7,
+          wt: 126.1,
+          touched: 3,
+          acc: "18건 (18건)",
+          acc_num: 18,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 11,
+          id: "CAND_00721",
+          gu: "남구",
+          seg: "SEG_000532",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 12.78,
+          wt: 124.73,
+          touched: 6,
+          acc: "0건 (0건)",
+          acc_num: 0,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 12,
+          id: "CAND_00381",
+          gu: "해운대구",
+          seg: "SEG_000898",
+          coast: "해안가",
+          station: "기장(1.0m)",
+          risk: "0.543 (3등급)",
+          ha: 15.84,
+          wt: 122.19,
+          touched: 5,
+          acc: "23건 (15건)",
+          acc_num: 23,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 13,
+          id: "CAND_01076",
+          gu: "사하구",
+          seg: "SEG_000766",
+          coast: "항포구",
+          station: "다대포(0.7m)",
+          risk: "0.499 (3등급)",
+          ha: 21.87,
+          wt: 121.26,
+          touched: 5,
+          acc: "12건 (12건)",
+          acc_num: 12,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 14,
+          id: "CAND_00492",
+          gu: "동구",
+          seg: "SEG_000623",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 15.57,
+          wt: 121.22,
+          touched: 5,
+          acc: "4건 (4건)",
+          acc_num: 4,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 15,
+          id: "CAND_00799",
+          gu: "영도구",
+          seg: "SEG_000012",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 10.98,
+          wt: 118.34,
+          touched: 2,
+          acc: "18건 (16건)",
+          acc_num: 18,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 16,
+          id: "CAND_00037",
+          gu: "기장군",
+          seg: "SEG_000485",
+          coast: "해안가",
+          station: "기장(1.0m)",
+          risk: "0.543 (3등급)",
+          ha: 15.21,
+          wt: 117.28,
+          touched: 6,
+          acc: "0건 (0건)",
+          acc_num: 0,
+          type: "TYPE3",
+          label: "③ 내륙·진입로 감시형 (해안 직시 불필요)",
+        },
+        {
+          rank: 17,
+          id: "CAND_00603",
+          gu: "남구",
+          seg: "SEG_000896",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 15.66,
+          wt: 113.54,
+          touched: 10,
+          acc: "2건 (2건)",
+          acc_num: 2,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 18,
+          id: "CAND_00041",
+          gu: "기장군",
+          seg: "SEG_000114",
+          coast: "해안가",
+          station: "기장(1.0m)",
+          risk: "0.543 (3등급)",
+          ha: 14.31,
+          wt: 107.45,
+          touched: 6,
+          acc: "4건 (0건)",
+          acc_num: 4,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 19,
+          id: "CAND_00743",
+          gu: "영도구",
+          seg: "SEG_001762",
+          coast: "해안가",
+          station: "오륙도(1.0m)",
+          risk: "0.527 (3등급)",
+          ha: 18.09,
+          wt: 106.81,
+          touched: 6,
+          acc: "7건 (7건)",
+          acc_num: 7,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 20,
+          id: "CAND_00254",
+          gu: "기장군",
+          seg: "SEG_000460",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 17.01,
+          wt: 104.14,
+          touched: 10,
+          acc: "5건 (3건)",
+          acc_num: 5,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 21,
+          id: "CAND_01270",
+          gu: "서구",
+          seg: "SEG_001305",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 9.63,
+          wt: 103.79,
+          touched: 2,
+          acc: "32건 (32건)",
+          acc_num: 32,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 22,
+          id: "CAND_00715",
+          gu: "영도구",
+          seg: "SEG_001765",
+          coast: "해안가",
+          station: "오륙도(1.0m)",
+          risk: "0.527 (3등급)",
+          ha: 12.78,
+          wt: 100.6,
+          touched: 5,
+          acc: "5건 (5건)",
+          acc_num: 5,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 23,
+          id: "CAND_00507",
+          gu: "남구",
+          seg: "SEG_000428",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 15.12,
+          wt: 99.91,
+          touched: 3,
+          acc: "1건 (1건)",
+          acc_num: 1,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 24,
+          id: "CAND_00302",
+          gu: "해운대구",
+          seg: "SEG_001687",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 12.42,
+          wt: 97.93,
+          touched: 14,
+          acc: "11건 (6건)",
+          acc_num: 11,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 25,
+          id: "CAND_01199",
+          gu: "영도구",
+          seg: "SEG_000109",
+          coast: "해안가",
+          station: "오륙도(1.0m)",
+          risk: "0.527 (3등급)",
+          ha: 15.66,
+          wt: 96.5,
+          touched: 7,
+          acc: "7건 (7건)",
+          acc_num: 7,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 26,
+          id: "CAND_01207",
+          gu: "강서구",
+          seg: "SEG_000823",
+          coast: "항포구",
+          station: "다대포(0.7m)",
+          risk: "0.499 (3등급)",
+          ha: 20.79,
+          wt: 93.15,
+          touched: 4,
+          acc: "9건 (9건)",
+          acc_num: 9,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 27,
+          id: "CAND_00160",
+          gu: "기장군",
+          seg: "SEG_001104",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 14.85,
+          wt: 90.73,
+          touched: 7,
+          acc: "1건 (1건)",
+          acc_num: 1,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 28,
+          id: "CAND_00457",
+          gu: "남구",
+          seg: "SEG_001661",
+          coast: "방파제·테트라포드",
+          station: "오륙도(1.0m)",
+          risk: "0.919 (5등급)",
+          ha: 10.53,
+          wt: 87.26,
+          touched: 12,
+          acc: "7건 (6건)",
+          acc_num: 7,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 29,
+          id: "CAND_01489",
+          gu: "사하구",
+          seg: "SEG_000076",
+          coast: "항포구",
+          station: "다대포(0.7m)",
+          risk: "0.499 (3등급)",
+          ha: 17.19,
+          wt: 87.11,
+          touched: 10,
+          acc: "16건 (15건)",
+          acc_num: 16,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 30,
+          id: "CAND_00615",
+          gu: "중구",
+          seg: "SEG_001826",
+          coast: "해안가",
+          station: "오륙도(1.0m)",
+          risk: "0.527 (3등급)",
+          ha: 14.4,
+          wt: 87.06,
+          touched: 9,
+          acc: "1건 (1건)",
+          acc_num: 1,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 31,
+          id: "CAND_00049",
+          gu: "기장군",
+          seg: "SEG_001320",
+          coast: "해안가",
+          station: "기장(1.0m)",
+          risk: "0.543 (3등급)",
+          ha: 11.34,
+          wt: 81.93,
+          touched: 8,
+          acc: "1건 (0건)",
+          acc_num: 1,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 32,
+          id: "CAND_00605",
+          gu: "남구",
+          seg: "SEG_000495",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 12.33,
+          wt: 81.9,
+          touched: 5,
+          acc: "2건 (2건)",
+          acc_num: 2,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 33,
+          id: "CAND_01470",
+          gu: "서구",
+          seg: "SEG_000567",
+          coast: "방파제·테트라포드",
+          station: "오륙도(1.0m)",
+          risk: "0.919 (5등급)",
+          ha: 15.75,
+          wt: 80.81,
+          touched: 8,
+          acc: "20건 (18건)",
+          acc_num: 20,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 34,
+          id: "CAND_00201",
+          gu: "기장군",
+          seg: "SEG_001461",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 13.95,
+          wt: 79.84,
+          touched: 15,
+          acc: "1건 (1건)",
+          acc_num: 1,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 35,
+          id: "CAND_00884",
+          gu: "사하구",
+          seg: "SEG_001670",
+          coast: "해안가",
+          station: "다대포(0.7m)",
+          risk: "0.271 (2등급)",
+          ha: 27.18,
+          wt: 78.39,
+          touched: 9,
+          acc: "0건 (0건)",
+          acc_num: 0,
+          type: "TYPE3",
+          label: "③ 내륙·진입로 감시형 (해안 직시 불필요)",
+        },
+        {
+          rank: 36,
+          id: "CAND_00516",
+          gu: "동구",
+          seg: "SEG_001207",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 7.38,
+          wt: 78.21,
+          touched: 4,
+          acc: "41건 (41건)",
+          acc_num: 41,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 37,
+          id: "CAND_00819",
+          gu: "남구",
+          seg: "SEG_000534",
+          coast: "항포구",
+          station: "오륙도(1.0m)",
+          risk: "0.970 (5등급)",
+          ha: 18.36,
+          wt: 76.95,
+          touched: 4,
+          acc: "3건 (3건)",
+          acc_num: 3,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 38,
+          id: "CAND_01530",
+          gu: "사하구",
+          seg: "SEG_001200",
+          coast: "항포구",
+          station: "다대포(0.7m)",
+          risk: "0.499 (3등급)",
+          ha: 14.94,
+          wt: 75.36,
+          touched: 12,
+          acc: "15건 (15건)",
+          acc_num: 15,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 39,
+          id: "CAND_00171",
+          gu: "기장군",
+          seg: "SEG_000748",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 12.33,
+          wt: 74.53,
+          touched: 9,
+          acc: "1건 (0건)",
+          acc_num: 1,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 40,
+          id: "CAND_00993",
+          gu: "사하구",
+          seg: "SEG_000765",
+          coast: "항포구",
+          station: "다대포(0.7m)",
+          risk: "0.499 (3등급)",
+          ha: 13.41,
+          wt: 74.35,
+          touched: 2,
+          acc: "5건 (5건)",
+          acc_num: 5,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 41,
+          id: "CAND_00699",
+          gu: "남구",
+          seg: "SEG_000237",
+          coast: "갯바위",
+          station: "오륙도(1.0m)",
+          risk: "0.537 (3등급)",
+          ha: 10.08,
+          wt: 74.3,
+          touched: 10,
+          acc: "0건 (0건)",
+          acc_num: 0,
+          type: "TYPE3",
+          label: "③ 내륙·진입로 감시형 (해안 직시 불필요)",
+        },
+        {
+          rank: 42,
+          id: "CAND_00278",
+          gu: "기장군",
+          seg: "SEG_000080",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 12.06,
+          wt: 74.1,
+          touched: 4,
+          acc: "3건 (1건)",
+          acc_num: 3,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 43,
+          id: "CAND_00957",
+          gu: "서구",
+          seg: "SEG_000383",
+          coast: "방파제·테트라포드",
+          station: "오륙도(1.0m)",
+          risk: "0.919 (5등급)",
+          ha: 7.02,
+          wt: 72.6,
+          touched: 3,
+          acc: "43건 (42건)",
+          acc_num: 43,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 44,
+          id: "CAND_01187",
+          gu: "영도구",
+          seg: "SEG_000108",
+          coast: "해안가",
+          station: "오륙도(1.0m)",
+          risk: "0.527 (3등급)",
+          ha: 13.68,
+          wt: 71.49,
+          touched: 8,
+          acc: "4건 (3건)",
+          acc_num: 4,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 45,
+          id: "CAND_00414",
+          gu: "해운대구",
+          seg: "SEG_000897",
+          coast: "해안가",
+          station: "기장(1.0m)",
+          risk: "0.543 (3등급)",
+          ha: 10.17,
+          wt: 71.02,
+          touched: 7,
+          acc: "10건 (5건)",
+          acc_num: 10,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 46,
+          id: "CAND_00217",
+          gu: "기장군",
+          seg: "SEG_000177",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 11.43,
+          wt: 70.12,
+          touched: 5,
+          acc: "2건 (1건)",
+          acc_num: 2,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 47,
+          id: "CAND_00206",
+          gu: "기장군",
+          seg: "SEG_001480",
+          coast: "갯바위",
+          station: "기장(1.0m)",
+          risk: "0.553 (3등급)",
+          ha: 11.34,
+          wt: 69.45,
+          touched: 11,
+          acc: "3건 (2건)",
+          acc_num: 3,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 48,
+          id: "CAND_01242",
+          gu: "강서구",
+          seg: "SEG_000505",
+          coast: "항포구",
+          station: "다대포(0.7m)",
+          risk: "0.499 (3등급)",
+          ha: 12.6,
+          wt: 69.18,
+          touched: 4,
+          acc: "1건 (1건)",
+          acc_num: 1,
+          type: "TYPE2",
+          label: "② 해안·내륙 복합형 (PTZ 양방향 전환)",
+        },
+        {
+          rank: 49,
+          id: "CAND_01540",
+          gu: "사하구",
+          seg: "SEG_000092",
+          coast: "해안가",
+          station: "다대포(0.7m)",
+          risk: "0.271 (2등급)",
+          ha: 18.18,
+          wt: 69.06,
+          touched: 13,
+          acc: "5건 (5건)",
+          acc_num: 5,
+          type: "TYPE1",
+          label: "① 해안 필수 직시형 (바다·테트라포드 고정)",
+        },
+        {
+          rank: 50,
+          id: "CAND_00166",
+          gu: "기장군",
+          seg: "SEG_001536",
+          coast: "해안가",
+          station: "기장(1.0m)",
+          risk: "0.543 (3등급)",
+          ha: 11.25,
+          wt: 68.26,
+          touched: 15,
+          acc: "0건 (0건)",
+          acc_num: 0,
+          type: "TYPE3",
+          label: "③ 내륙·진입로 감시형 (해안 직시 불필요)",
+        },
+      ];
+
+      document.getElementById("district-bars").innerHTML = districts
+        .map(
+          (d) => `
+      <div class="bar-row">
+        <div class="bar-name">${d.name}</div>
+        <div class="bar-track">
+          <div class="bar-cur" style="width:${d.cur}%" title="현재 ${d.cur}%"></div>
+          <div class="bar-gain" style="width:${d.gain}%" title="회전 개선 +${d.gain}%p"></div>
+        </div>
+        <div class="bar-stat"><strong style="color:var(--fg)">${d.cur}%</strong> → <span style="color:var(--primary)">2D반경 ${d.omni}% (사각 ${(100 - d.cur).toFixed(1)}%)</span></div>
+      </div>
+    `,
+        )
+        .join("");
+
+      function filterTable(type) {
+        ["ALL", "TYPE1", "TYPE2", "TYPE3"].forEach((t) => {
+          document
+            .getElementById("ft-" + t)
+            .classList.toggle("active", t === type);
+        });
+        const rows =
+          type === "ALL" ? allSites : allSites.filter((r) => r.type === type);
+        document.getElementById("sites-tbody").innerHTML = rows
+          .map((r) => {
+            const cls =
+              r.type === "TYPE1"
+                ? "badge-t1"
+                : r.type === "TYPE2"
+                  ? "badge-t2"
+                  : "badge-t3";
+            return `
+          <tr>
+            <td><strong>#${r.rank}</strong></td>
+            <td><code>${r.id}</code></td>
+            <td>${r.gu}</td>
+            <td><code>${r.seg}</code></td>
+            <td>${r.coast}</td>
+            <td>${r.station}</td>
+            <td class="text-right">${r.risk}</td>
+            <td class="text-right"><strong>+${r.ha.toFixed(2)}ha</strong></td>
+            <td class="text-right">${r.acc}</td>
+            <td class="${cls}">${r.label}</td>
+          </tr>
+        `;
+          })
+          .join("");
+      }
+
+      function showTab(t) {
+        ["t1", "t2", "t3", "t4"].forEach((id) => {
+          document
+            .getElementById("p-" + id)
+            .classList.toggle("hidden", id !== t);
+          document
+            .getElementById("b-" + id)
+            .classList.toggle("active", id === t);
+        });
+      }
+
+      filterTable("ALL");
+    </script>
+  </body>
+</html>

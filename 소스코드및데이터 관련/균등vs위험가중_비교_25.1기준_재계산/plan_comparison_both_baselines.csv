@@ -1,0 +1,17 @@
+﻿baseline,plan,new_cameras,coast_coverage_pct,risk_weighted_coverage_pct,candidates_v4_coverage_pct
+original_360,균등 배치,0,25.1,37.1,0.0
+original_360,균등 배치,10,28.8,41.2,17.5
+original_360,균등 배치,20,31.8,45.0,28.5
+original_360,균등 배치,50,39.3,53.8,47.5
+original_360,위험도 가중 배치,0,25.1,37.1,0.0
+original_360,위험도 가중 배치,10,28.1,43.2,37.2
+original_360,위험도 가중 배치,20,30.8,47.7,46.7
+original_360,위험도 가중 배치,50,37.7,57.1,61.3
+conservative_after_rotation,균등 배치,0,32.0,45.6,0.0
+conservative_after_rotation,균등 배치,10,35.7,49.7,17.5
+conservative_after_rotation,균등 배치,20,38.6,53.1,28.5
+conservative_after_rotation,균등 배치,50,45.6,60.7,47.8
+conservative_after_rotation,위험도 가중 배치,0,32.0,45.6,0.0
+conservative_after_rotation,위험도 가중 배치,10,35.0,51.3,37.6
+conservative_after_rotation,위험도 가중 배치,20,37.5,55.3,46.7
+conservative_after_rotation,위험도 가중 배치,50,43.9,63.9,61.3

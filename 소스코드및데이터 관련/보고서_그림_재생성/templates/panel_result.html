@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>panel_result</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1368px;height:765px;background:#fff;font-family:Pretendard,"Apple SD Gothic Neo",sans-serif;color:#1F2937;overflow:hidden;position:relative}
+.head{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:10px}
+.badge{background:#E8650B;color:#fff;font-weight:700;font-size:8px;padding:4px 9px;border-radius:999px;white-space:nowrap}
+h1{font-size:15.5px;font-weight:700;letter-spacing:-0.3px}
+.sub{position:absolute;left:14px;top:46px;color:#6B7280;font-size:7.5px}
+.left{position:absolute;left:14px;top:70px;width:664px}
+.legend{display:flex;gap:22px;font-size:7.5px;color:#374151;margin:6px 0 4px 2px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px}
+.bars{margin-top:2px}
+.row{display:flex;align-items:center;height:27px;font-size:7.5px}
+.row .lab{width:106px;color:#374151;white-space:nowrap}
+.row .track{width:378px;height:13px;background:#D7DBE0;border-radius:3px;position:relative;overflow:hidden}
+.row .track .f3{position:absolute;left:0;top:0;height:100%;background:#E8650B;border-radius:3px}
+.row .track .f2{position:absolute;left:0;top:0;height:100%;background:#D7DBE0}
+.row .track .gap{position:absolute;right:0;top:0;height:100%;background:#fff}
+.row .val{flex:1;text-align:right;color:#374151;white-space:nowrap;padding-right:4px}
+.row.red .val{color:#D32F2F;font-weight:600}
+.row.total{border:1.5px solid #F3B47B;background:#FFF7ED;border-radius:5px;margin-top:4px;height:29px;padding:0 4px 0 2px}
+.row.total .lab{font-weight:700;color:#1F2937}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px;border:1px solid #E5E7EB;border-radius:5px;overflow:hidden;font-size:7.5px}
+th{background:#1E2A3A;color:#fff;font-weight:600;text-align:left;padding:8px 7px}
+td{padding:9.5px 7px;border-top:1px solid #EEF0F3;background:#fff}
+tr:nth-child(even) td{background:#F8FAFC}
+.red{color:#D32F2F;font-weight:700}.org{color:#E8650B;font-weight:700}.b{font-weight:700}.blu{color:#1E5BD1}
+.box{margin-top:13px;border:1.5px solid #F3B4B4;background:#FFF5F5;border-radius:6px;padding:9px 11px 11px}
+.box h2{font-size:9.5px;font-weight:700}
+.box .def{font-size:6.5px;color:#4B5563;margin:5px 0 7px}
+.cards{display:flex;gap:9px}
+.card{flex:1;background:#fff;border:1px solid #F7C6C6;border-radius:5px;padding:8px 9px}
+.card .l{font-size:6.5px;font-weight:700;margin-bottom:3px}
+.card .v{font-size:14px;font-weight:800;margin-bottom:4px;letter-spacing:-0.4px;white-space:nowrap}
+.card .s{font-size:6px;color:#6B7280}
+.map{position:absolute;left:684px;top:$map_top;width:684px;height:$map_h}
+.map img{width:100%;height:100%;display:block}
+</style></head>
+<body>
+<div class="head"><span class="badge">분석 결과 ①</span><h1>구·군별 기존 CCTV 분포 현황: 2D 500m 반경($all_2d) vs 3D 실제 가시율($all_3d)</h1></div>
+<p class="sub">연한 회색: 단순 2D 500m 반경 기준 커버율 / 진한 주황색: 3D 지형·화각·목적 3분류 반영 실제 가시 커버율 (나머지는 미커버 사각지대)</p>
+<div class="left">
+<div class="legend"><span><i style="background:#E8650B"></i>3D 실제 가시 커버율 (기존 CCTV 3분류 반영)</span><span><i style="background:#D7DBE0"></i>기존 2D 500m 반경 커버율 (지형 차폐·화각 미반영 시 과대평가 구간)</span></div>
+<div class="bars">
+$bars
+</div>
+<table>
+<thead><tr><th>해안유형 (육지 설치대상 $land_n구간)</th><th>구간 수</th><th>유형위험(T)</th><th>파랑노출(W)</th><th>평균 위험지수</th><th>고위험(4·5등급) 비율</th><th>완전 사각(0%) 비율</th></tr></thead>
+<tbody>
+$rows
+</tbody></table>
+<div class="box">
+<h2>핵심 발견: 최우선 설치후보 $n4개 구간(cctv_candidates_v4)에서 확인된 「2D 500m 반경의 착시」</h2>
+<p class="def">• 정의: 육지부 설치 대상($land_n구간) 중 위험등급 4·5등급(고위험)이면서 보수적 3D 가시 커버율이 0.0%인 완전 사각지대 $n4구간</p>
+<div class="cards">
+<div class="card"><div class="l red">① 500m 반경 내 CCTV 존재 비율</div><div class="v red">$v4_cctv_p ($v4_cctv / $n4구간)</div><div class="s">2D 반경으론 '안전'으로 분류되나 실제 가시율 0% · 나머지 $v4_gap구간($v4_gap_p)은 500m 내 CCTV 자체가 없음</div></div>
+<div class="card"><div class="l org">② 핵심 사각 $n4구간의 해안유형</div><div class="v org">방파제·테트라포드 $v4_bw_p</div><div class="s">방파제 $v4_bw구간 · 미분류(암벽) $v4_mi구간 · 항포구 $v4_hp구간</div></div>
+<div class="card"><div class="l blu">③ 핵심 사각 $n4구간의 지역·기상 분포</div><div class="v blu">외해 $v4_sea (기장 $v4_gijang · 남구 $v4_nam)</div><div class="s">$v4_gu</div></div>
+</div></div>
+</div>
+<div class="map"><img src="$map_src"></div>
+</body></html>

@@ -1,0 +1,4 @@
+﻿unknown_fov,fixed_cameras,away_from_coast_pct,random_mean_pct,random_min_pct,random_max_pct,toward_coast_pct,optimized_pct,gain_from_random_pp,gain_from_away_pp,zero_segments_random_mean,zero_segments_optimized
+3분류기본(미상=고정60°),1016,16.41,23.02,22.33,23.61,25.1,31.98,8.96,15.57,932.0,804
+미상=고정60°,1016,16.41,22.99,22.34,23.55,25.1,31.98,8.99,15.57,930.3,804
+미상=고정90°,1016,18.57,26.15,25.53,27.13,28.61,34.19,8.04,15.62,887.6,793

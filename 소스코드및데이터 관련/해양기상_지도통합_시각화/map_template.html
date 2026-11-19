@@ -1,0 +1,507 @@
+<title>부산 연안 파랑노출 지도</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>/*__LEAFLET_CSS__*/</style>
+<style>
+/* Layout: 해도(海圖) 작업대 — 왼쪽 계기 패널(범례·부이별 요약) + 오른쪽 전면 지도. 폰에서는 지도 위, 패널 아래로 쌓임 */
+:root {
+  --sea: #f4f7f7;          /* 지도 바탕 = 바다 */
+  --panel: #fcfcfb;
+  --ink: #0f1517;
+  --ink-2: #4b5457;
+  --muted: #7f888b;
+  --hair: #dde3e4;
+  --chip: #edf1f2;
+  --focus: #2a78d6;
+  /* 배정 부이 (범주형 1~3 슬롯, 고정 순서) */
+  --st-1: #2a78d6;  /* 기장 */
+  --st-2: #eb6834;  /* 오륙도 */
+  --st-3: #1baf7a;  /* 다대포 */
+  /* 순서형 파랑 램프 (낮음 → 높음) */
+  --q-1: #86b6ef; --q-2: #3987e5; --q-3: #1c5cab; --q-4: #0d366b;
+  /* 위험등급 양극 척도: 파랑(덜 위험) → 빨강(고위험) */
+  --g-2: #2a78d6; --g-3: #78abeb; --g-4: #ef8f84; --g-5: #c9302f;
+  --nodata: #c3c2b7;
+  --acc-ok: #7b93e8;
+  --acc-bad: #6250d6;
+  --site: #0f1517;
+  --font-ui: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sea: #161a1b; --panel: #1c2122; --ink: #eef1f1; --ink-2: #bcc4c6; --muted: #889194;
+    --hair: #2d3436; --chip: #252b2d; --focus: #6da7ec;
+    --st-1: #3987e5; --st-2: #d95926; --st-3: #199e70;
+    --q-1: #184f95; --q-2: #256abf; --q-3: #3987e5; --q-4: #86b6ef;
+    --g-2: #3987e5; --g-3: #2f5687; --g-4: #93403a; --g-5: #e66767;
+    --nodata: #4a4a46; --acc-ok: #5f74cf; --acc-bad: #9085e9; --site: #eef1f1;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sea: #161a1b; --panel: #1c2122; --ink: #eef1f1; --ink-2: #bcc4c6; --muted: #889194;
+  --hair: #2d3436; --chip: #252b2d; --focus: #6da7ec;
+  --st-1: #3987e5; --st-2: #d95926; --st-3: #199e70;
+  --q-1: #184f95; --q-2: #256abf; --q-3: #3987e5; --q-4: #86b6ef;
+  --g-2: #3987e5; --g-3: #2f5687; --g-4: #93403a; --g-5: #e66767;
+  --nodata: #4a4a46; --acc-ok: #5f74cf; --acc-bad: #9085e9; --site: #eef1f1;
+  color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body { background: var(--panel); color: var(--ink); font-family: var(--font-ui); font-size: 14px; line-height: 1.5; }
+.app { display: grid; grid-template-columns: minmax(340px, 410px) 1fr; height: 100%; }
+.panel {
+  overflow-y: auto; border-right: 1px solid var(--hair); background: var(--panel);
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: 20px; padding-block: 22px 28px;
+  display: flex; flex-direction: column; gap: 22px; min-width: 0;
+}
+.mapwrap { position: relative; min-width: 0; }
+#map { position: absolute; inset: 0; background: var(--sea); }
+
+h1 { font-size: 21px; line-height: 1.3; font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.eyebrow { font-family: var(--font-num); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.lede { margin: 8px 0 0; color: var(--ink-2); font-size: 13.5px; max-width: 62ch; }
+h2 { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-2); margin: 0 0 10px; }
+section { min-width: 0; }
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+
+/* 색 기준 전환 */
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--chip); border-radius: 8px; padding: 3px; gap: 3px; }
+.seg button {
+  font: inherit; font-size: 12.5px; border: 0; background: transparent; color: var(--ink-2);
+  padding: 7px 4px; border-radius: 6px; cursor: pointer; white-space: nowrap;
+}
+.seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); font-weight: 600; box-shadow: 0 0 0 1px var(--hair); }
+.seg button:focus-visible, .stbtn:focus-visible, .toggle input:focus-visible + span, select:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.modehint { font-size: 12.5px; color: var(--ink-2); margin: 10px 0 8px; }
+.legend { display: flex; flex-direction: column; gap: 5px; }
+.legend .row { display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 8px; font-size: 13px; }
+.swatch { width: 22px; height: 4px; border-radius: 2px; }
+.legend .cnt { color: var(--muted); font-size: 12px; }
+
+/* 레이어 */
+.layers { display: flex; flex-direction: column; gap: 9px; }
+.toggle { display: flex; align-items: center; gap: 9px; font-size: 13px; cursor: pointer; }
+.toggle input { margin: 0; accent-color: var(--focus); }
+.toggle .mk { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.toggle .mk.dia { border-radius: 1px; transform: rotate(45deg); width: 8px; height: 8px; margin-inline: 1px; }
+.layer-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+select { font: inherit; font-size: 12.5px; background: var(--panel); color: var(--ink); border: 1px solid var(--hair); border-radius: 6px; padding: 4px 6px; }
+.note-sm { font-size: 12px; color: var(--muted); }
+
+/* 부이별 요약표 */
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+th, td { padding: 6px 4px; border-bottom: 1px solid var(--hair); text-align: right; }
+th:first-child, td:first-child { text-align: left; color: var(--ink-2); font-weight: 400; padding-left: 0; font-family: var(--font-ui); }
+thead th { border-bottom: 1px solid var(--ink-2); vertical-align: bottom; }
+td { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+tbody tr.key td { color: var(--ink); font-weight: 500; }
+.stbtn {
+  font: inherit; font-weight: 600; font-size: 12.5px; color: var(--ink); background: none; border: 0; padding: 2px 0;
+  cursor: pointer; display: inline-flex; flex-direction: column; align-items: flex-end; gap: 3px;
+}
+.stbtn .bar { width: 26px; height: 4px; border-radius: 2px; }
+.stbtn .sub { font-weight: 400; color: var(--muted); font-size: 11px; }
+.stbtn[aria-pressed="true"] { text-decoration: underline; text-underline-offset: 3px; }
+.tablefoot { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.linkbtn { font: inherit; font-size: 12px; color: var(--focus); background: none; border: 0; padding: 0; cursor: pointer; }
+
+/* 사고 당시 기상 */
+.wxhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; margin-bottom: 8px; }
+.mk-inline { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.bars { display: flex; flex-direction: column; gap: 4px; }
+.bars .row { display: grid; grid-template-columns: 70px 1fr 30px; gap: 8px; align-items: center; font-size: 12.5px; }
+.bars .track { height: 8px; }
+.bars .fill { height: 8px; background: var(--acc-bad); border-radius: 0 4px 4px 0; min-width: 2px; }
+.bars .v { text-align: right; color: var(--ink-2); }
+
+.notes { font-size: 12.5px; color: var(--ink-2); display: flex; flex-direction: column; gap: 6px; padding-left: 16px; margin: 0; }
+.notes li::marker { color: var(--muted); }
+.src { font-size: 11.5px; color: var(--muted); line-height: 1.6; word-break: break-all; }
+code { font-family: var(--font-num); font-size: 0.95em; }
+
+/* 지도 위 요소 */
+.maptag {
+  position: absolute; z-index: 500; left: calc(12px + env(safe-area-inset-left, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--panel); color: var(--ink-2); border: 1px solid var(--hair); border-radius: 6px;
+  padding: 5px 9px; font-size: 11.5px; pointer-events: none; max-width: calc(100% - 24px);
+}
+.leaflet-container { font-family: var(--font-ui); background: var(--sea); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip, .leaflet-tooltip { background: var(--panel); color: var(--ink); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
+.leaflet-tooltip { border: 1px solid var(--hair); font-size: 12px; padding: 4px 8px; }
+.leaflet-tooltip-top:before { border-top-color: var(--panel); }
+.leaflet-popup-content { margin: 12px 14px; font-size: 12.5px; line-height: 1.5; min-width: 220px; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
+.leaflet-bar a { background: var(--panel); color: var(--ink); border-bottom-color: var(--hair); }
+.leaflet-bar a:hover { background: var(--chip); }
+.leaflet-control-attribution { background: color-mix(in srgb, var(--panel) 80%, transparent) !important; color: var(--muted); }
+.leaflet-control-attribution a { color: var(--ink-2); }
+.pop h3 { margin: 0 0 2px; font-size: 13.5px; font-weight: 600; }
+.pop .sub { color: var(--muted); font-size: 11.5px; margin-bottom: 8px; }
+.pop dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0; }
+.pop dt { color: var(--ink-2); }
+.pop dd { margin: 0; text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+.pop .grp { grid-column: 1 / -1; border-top: 1px solid var(--hair); margin-top: 4px; padding-top: 4px; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+.zonelabel { background: none; border: 0; box-shadow: none; font-weight: 600; font-size: 12.5px; color: var(--ink); text-shadow: 0 0 3px var(--sea), 0 0 3px var(--sea), 0 0 6px var(--sea); white-space: nowrap; }
+.zonelabel:before { display: none; }
+
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 62vh auto; height: auto; }
+  .mapwrap { order: -1; height: 62vh; }
+  .panel { border-right: 0; border-top: 1px solid var(--hair); overflow: visible; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  html, body { height: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; } }
+</style>
+
+<div class="app">
+  <aside class="panel">
+    <header>
+      <p class="eyebrow">DatoryLab · 트랙 D 통합 결과</p>
+      <h1>부산 연안 해안선 1,832구간의 해양기상 배정 지도</h1>
+      <p class="lede">해안선 구간마다 기상청 해양기상부이(기장·오륙도·다대포) 중 하나를 배정했고, 그 부이의 유의파고 임계치와 파랑노출(W)을 구간 속성으로 붙였습니다. <code>build_trackD_dataset.py</code>가 만든 <code>segments.csv</code>를 실제 해안선 형상에 다시 입힌 결과입니다.</p>
+    </header>
+
+    <section aria-labelledby="h-mode">
+      <h2 id="h-mode">해안선 색 기준</h2>
+      <div class="seg" role="group" aria-label="해안선 색 기준">
+        <button type="button" id="mode-st" data-mode="st" aria-pressed="true">배정 부이</button>
+        <button type="button" id="mode-w" data-mode="W" aria-pressed="false">파랑노출 W</button>
+        <button type="button" id="mode-grade" data-mode="grade" aria-pressed="false">위험등급</button>
+        <button type="button" id="mode-cov" data-mode="cov" aria-pressed="false">CCTV 가시율</button>
+      </div>
+      <p class="modehint" id="modehint"></p>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section aria-labelledby="h-layers">
+      <h2 id="h-layers">겹쳐 보기</h2>
+      <div class="layers">
+        <div class="layer-row">
+          <label class="toggle" for="acc-on"><input type="checkbox" id="acc-on" checked><span class="mk" style="background:var(--acc-bad)"></span>연안사고 <span class="num" id="acc-count"></span></label>
+          <select id="acc-filter" aria-label="연안사고 표시 범위">
+            <option value="bad">악기상 사고만</option>
+            <option value="all">전체 (양호 포함)</option>
+          </select>
+        </div>
+        <label class="toggle" for="site-on"><input type="checkbox" id="site-on" checked><span class="mk dia" style="background:var(--site)"></span>신규 CCTV 상위 50곳 (위험도 가중)</label>
+        <label class="toggle" for="base-on"><input type="checkbox" id="base-on"><span>배경지도</span> <span class="note-sm" id="base-note">확인 중…</span></label>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-st">
+      <h2 id="h-st">부이 권역별 요약</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th scope="col"><span class="note-sm">권역 이름을 누르면 확대</span></th><th scope="col" id="th-0"></th><th scope="col" id="th-1"></th><th scope="col" id="th-2"></th></tr></thead>
+          <tbody id="st-body"></tbody>
+        </table>
+      </div>
+      <div class="tablefoot">
+        <span class="note-sm">사고는 해안 구간 1km 이내만 권역 집계</span>
+        <button type="button" class="linkbtn" id="reset">부산 전체 보기</button>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-wx">
+      <h2 id="h-wx">사고 당시 기상상태</h2>
+      <div class="wxhead"><span id="wx-ok"></span><span class="note-sm" id="wx-years"></span></div>
+      <div class="bars" id="wx-bars"></div>
+    </section>
+
+    <section aria-labelledby="h-notes">
+      <h2 id="h-notes">읽을 때 주의할 점</h2>
+      <ul class="notes">
+        <li>W는 구간마다 계산한 값이 아니라 <strong>배정된 부이의 값을 그대로 받은 것</strong>입니다. 그래서 값이 1.000(기장)·0.941(오륙도)·0.249(다대포) 세 가지뿐이고, 지도에서 권역 단위로 색이 바뀝니다.</li>
+        <li>풍속 임계치 16.9m/s는 오륙도 등표 한 곳의 값이라 전 구간이 같습니다.</li>
+        <li>부이별 시간대 관측 자료(<code>station_hourly.csv</code>)는 아직 없어서, 지도에는 임계치·노출 같은 정적인 값만 담았습니다.</li>
+        <li>부이의 실제 위치 좌표는 데이터에 없습니다. 지도의 권역 이름은 배정된 구간들의 중심에 붙인 표시이고, 부이 위치가 아닙니다.</li>
+        <li>사고 지점의 권역은 가장 가까운 해안 구간(1km 이내)의 배정 부이로 정했습니다. 먼바다 선박 사고 등 1km 밖 <span class="num" id="acc-unmatched"></span>건은 권역 집계에서 빠지고, 지도에는 표시됩니다.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-src">
+      <h2 id="h-src">원본 데이터</h2>
+      <p class="src">
+        해안선 형상: <code>outputs/cctv_reanalysis/coastal_safety_busan_cctv_updated.gpkg</code><br>
+        구간 통합표: <code>outputs/trackD/segments.csv</code>, <code>station_thresholds.csv</code><br>
+        트랙 A 입력: <code>1_관측소배정.csv</code>, <code>2_관측소별임계.csv</code>, <code>4_구간별위험지수.csv</code><br>
+        연안사고: <code>부산전체_행정안전부_연안사고.csv</code><br>
+        신규 후보: <code>top50_sites_direction_classified.csv</code>, <code>new_sites_ranked_trackB_weights.csv</code>
+      </p>
+    </section>
+  </aside>
+
+  <div class="mapwrap">
+    <div id="map" role="region" aria-label="부산 연안 해안선 지도"></div>
+    <div class="maptag" id="maptag">구간을 누르면 상세 값이 보입니다</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const DATA = /*__DATA__*/null;
+const STATIONS = ["기장", "오륙도", "다대포"];
+const ST_VAR = { "기장": "--st-1", "오륙도": "--st-2", "다대포": "--st-3" };
+const fmt = (v, d = 0) => (v == null || Number.isNaN(v)) ? "–" : Number(v).toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const MODES = {
+  st: {
+    hint: "구간마다 배정된 해양기상부이. 외해 1,036구간은 기장·오륙도, 내만 796구간은 다대포를 따릅니다.",
+    classes: STATIONS.map((s) => ({ key: s, label: `${s} 부이`, color: ST_VAR[s], test: (p) => p.st === s })),
+  },
+  W: {
+    hint: "부이의 파랑 노출 지수(0~1). 권역마다 값이 하나뿐이라 세 단계로만 나뉩니다.",
+    classes: [
+      { key: "lo", label: "0.249 · 다대포 (내만)", color: "--q-1", test: (p) => p.W < 0.5 },
+      { key: "mid", label: "0.941 · 오륙도 (외해)", color: "--q-3", test: (p) => p.W >= 0.5 && p.W < 0.99 },
+      { key: "hi", label: "1.000 · 기장 (외해)", color: "--q-4", test: (p) => p.W >= 0.99 },
+    ],
+  },
+  grade: {
+    hint: "파랑은 상대적으로 덜 위험, 빨강은 고위험(4·5등급)입니다. 위험지수 R = √(해안유형 위험 T × 파랑노출 W)를 구간으로 나눈 트랙 A 등급이며, 4·5등급은 모두 외해(기장·오륙도) 권역에 있습니다.",
+    classes: [
+      [2, "2등급 · R 0.27–0.34 (가장 낮음)"], [3, "3등급 · R 0.47–0.55"],
+      [4, "4등급 · R 0.67–0.69 (고위험)"], [5, "5등급 · R 0.92–1.00 (가장 위험)"],
+    ].map(([g, label]) => ({ key: g, label, color: `--g-${g}`, test: (p) => p.grade === g })),
+  },
+  cov: {
+    hint: "기존 CCTV의 3D 가시권(보수적 기준)이 해안 대상구역을 덮는 비율. 연한 색일수록 사각지대입니다.",
+    classes: [
+      { key: "0", label: "0% (완전 사각)", color: "--q-1", test: (p) => p.cov === 0 },
+      { key: "1", label: "0~50%", color: "--q-2", test: (p) => p.cov > 0 && p.cov < 50 },
+      { key: "2", label: "50~100%", color: "--q-3", test: (p) => p.cov >= 50 && p.cov < 100 },
+      { key: "3", label: "100%", color: "--q-4", test: (p) => p.cov >= 100 },
+      { key: "na", label: "값 없음 (면적 0 구간)", color: "--nodata", test: (p) => p.cov == null },
+    ],
+  },
+};
+
+let mode = "st";
+let focusStation = null;
+const segFeatures = DATA.segments.features;
+for (const m of Object.values(MODES)) {
+  for (const c of m.classes) c.count = segFeatures.filter((f) => c.test(f.properties)).length;
+}
+const classOf = (p) => MODES[mode].classes.find((c) => c.test(p));
+
+const map = L.map("map", { preferCanvas: true, zoomSnap: 0.25, attributionControl: true });
+map.attributionControl.setPrefix(false);
+const renderer = L.canvas({ padding: 0.3, tolerance: 6 });
+
+function segStyle(f) {
+  const c = classOf(f.properties);
+  const dim = focusStation && f.properties.st !== focusStation;
+  return { color: css(c ? c.color : "--nodata"), weight: dim ? 1.5 : 2.5, opacity: dim ? 0.25 : 0.95, lineCap: "round", lineJoin: "round" };
+}
+
+function row(k, v) { return `<dt>${k}</dt><dd>${v}</dd>`; }
+function segPopup(p) {
+  return `<div class="pop"><h3>${p.gu} · ${p.type}</h3><div class="sub">${p.id} · 길이 ${fmt(p.len)}m · ${p.land ? (p.site ? "육지부 설치대상" : "육지부 (설치 제외 구역)") : "도서부"}</div><dl>
+    <div class="grp">해양기상 배정</div>
+    ${row("배정 부이", `${p.st} (${p.exp})`)}${row("유의파고 임계 P85", `${fmt(p.hs, 1)} m`)}${row("풍속 임계", "16.9 m/s")}${row("파랑노출 W", fmt(p.W, 3))}
+    <div class="grp">위험도 (트랙 A)</div>
+    ${row("해안유형 위험 T", fmt(p.T, 3))}${row("위험지수 R", fmt(p.R, 3))}${row("위험등급", `${p.grade}등급`)}
+    <div class="grp">기존 CCTV (트랙 B)</div>
+    ${row("3D 가시율 (보수적)", p.cov == null ? "값 없음" : `${fmt(p.cov, 1)}%`)}${row("500m 내 CCTV", `${fmt(p.cctv)}곳`)}
+  </dl></div>`;
+}
+
+const segLayer = L.geoJSON(DATA.segments, {
+  renderer,
+  style: segStyle,
+  onEachFeature: (f, layer) => {
+    const p = f.properties;
+    layer.bindTooltip(`${p.st} 부이 · ${p.gu} ${p.type} · R ${fmt(p.R, 3)}`, { sticky: true, direction: "top", offset: [0, -6] });
+    layer.bindPopup(() => segPopup(p), { maxWidth: 300 });
+    layer.on("mouseover", () => layer.setStyle({ weight: 6 }));
+    layer.on("mouseout", () => segLayer.resetStyle(layer));
+  },
+}).addTo(map);
+const allBounds = segLayer.getBounds();
+map.fitBounds(allBounds, { padding: [16, 16] });
+
+// 권역 이름: 배정 구간들의 중심 (부이 위치 아님)
+const zoneBounds = {};
+const zoneLabels = L.layerGroup().addTo(map);
+for (const s of STATIONS) {
+  const b = L.latLngBounds([]);
+  segLayer.eachLayer((l) => { if (l.feature.properties.st === s) b.extend(l.getBounds()); });
+  zoneBounds[s] = b;
+  const n = segFeatures.filter((f) => f.properties.st === s).length;
+  L.tooltip({ permanent: true, direction: "center", className: "zonelabel", interactive: false })
+    .setLatLng(b.getCenter()).setContent(`${s} 권역 · ${fmt(n)}구간`).addTo(zoneLabels);
+}
+
+// 연안사고
+const accFeatures = DATA.accidents.features;
+const accLayer = L.layerGroup();
+function accPopup(p) {
+  return `<div class="pop"><h3>${p.kind} · ${p.wx}</h3><div class="sub">${p.date.slice(0, 4)}.${p.date.slice(4, 6)}.${p.date.slice(6, 8)} · ${p.zone ?? ""}</div><dl>
+    ${row("위치", p.place ?? "–")}${row("권역 (1km 이내)", p.st ? `${p.st} 부이 · ${fmt(p.dist_m)}m` : "해안 1km 밖")}
+  </dl></div>`;
+}
+function drawAccidents() {
+  accLayer.clearLayers();
+  const only = document.getElementById("acc-filter").value === "bad";
+  let n = 0;
+  const ringColor = css("--sea");
+  // 양호 먼저, 악기상을 위에 그림
+  for (const pass of only ? [true] : [false, true]) {
+    for (const f of accFeatures) {
+      const p = f.properties;
+      if (p.bad_wx !== pass) continue;
+      const [lon, lat] = f.geometry.coordinates;
+      const m = L.circleMarker([lat, lon], pass
+        ? { renderer, radius: 4.5, color: ringColor, weight: 1.5, fillColor: css("--acc-bad"), fillOpacity: 0.95 }
+        : { renderer, radius: 3.5, color: css("--acc-ok"), weight: 1, opacity: 0.9, fillColor: css("--acc-ok"), fillOpacity: 0.55 });
+      m.bindTooltip(`${p.kind} · ${p.wx} · ${p.year}`, { direction: "top", offset: [0, -4] });
+      m.bindPopup(() => accPopup(p), { maxWidth: 300 });
+      accLayer.addLayer(m);
+      n++;
+    }
+  }
+  document.getElementById("acc-count").textContent = `${fmt(n)}건`;
+}
+
+// 신규 상위 50곳
+const siteLayer = L.layerGroup();
+function drawSites() {
+  siteLayer.clearLayers();
+  for (const f of DATA.top50.features) {
+    const p = f.properties;
+    const [lon, lat] = f.geometry.coordinates;
+    const icon = L.divIcon({
+      className: "", iconSize: [14, 14], iconAnchor: [7, 7],
+      html: `<div style="width:10px;height:10px;margin:2px;transform:rotate(45deg);background:var(--site);box-shadow:0 0 0 2px var(--sea);border-radius:1px"></div>`,
+    });
+    const m = L.marker([lat, lon], { icon, keyboard: true, title: `신규 후보 ${p.rank}위` });
+    m.bindTooltip(`신규 ${p.rank}위 · ${p.gu} · ${p.st ?? "–"} 부이`, { direction: "top", offset: [0, -8] });
+    m.bindPopup(`<div class="pop"><h3>신규 후보 ${p.rank}위 · ${p.gu}</h3><div class="sub">${p.candidate_id} · ${p.type}</div><dl>
+      ${row("배정 부이", p.st ?? "–")}${row("파고 임계", p.hs != null ? `${fmt(p.hs, 1)} m` : "–")}${row("파랑노출 W", fmt(p.W, 3))}
+      ${row("위험지수 R", fmt(p.R, 3))}${row("500m 내 사고 / 중대", `${fmt(p.acc)} / ${fmt(p.sev)}건`)}
+      <div class="grp">촬영 방향</div><dt style="grid-column:1/-1;color:var(--ink)">${p.dir}</dt>
+    </dl></div>`, { maxWidth: 300 });
+    siteLayer.addLayer(m);
+  }
+}
+
+// 배경지도: 환경이 외부 타일을 막으면 끈 채로 둔다
+let baseLayer = null;
+function baseUrl() {
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches && document.documentElement.dataset.theme !== "light" || document.documentElement.dataset.theme === "dark";
+  return `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/${dark ? "World_Dark_Gray_Base" : "World_Light_Gray_Base"}/MapServer/tile/{z}/{y}/{x}`;
+}
+function setBase(on) {
+  if (baseLayer) { map.removeLayer(baseLayer); baseLayer = null; }
+  if (!on) return;
+  baseLayer = L.tileLayer(baseUrl(), { maxZoom: 16, opacity: 0.9,
+    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors' });
+  baseLayer.addTo(map).bringToBack();
+}
+(function probeBase() {
+  const box = document.getElementById("base-on");
+  const note = document.getElementById("base-note");
+  const img = new Image();
+  const done = (ok) => {
+    box.disabled = !ok;
+    note.textContent = ok ? "" : "이 화면에서는 외부 지도를 불러올 수 없습니다";
+    if (ok) { box.checked = true; setBase(true); }
+  };
+  const t = setTimeout(() => done(false), 4000);
+  img.onload = () => { clearTimeout(t); done(true); };
+  img.onerror = () => { clearTimeout(t); done(false); };
+  img.src = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/11/808/1767";
+})();
+
+// 패널: 범례
+function renderLegend() {
+  const m = MODES[mode];
+  document.getElementById("modehint").textContent = m.hint;
+  document.getElementById("legend").innerHTML = m.classes.filter((c) => c.count > 0 || c.key !== "na").map((c) =>
+    `<div class="row"><span class="swatch" style="background:var(${c.color})"></span><span>${c.label}</span><span class="cnt num">${fmt(c.count)}구간</span></div>`).join("");
+}
+function setMode(next) {
+  mode = next;
+  document.querySelectorAll(".seg button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === mode)));
+  segLayer.setStyle(segStyle);
+  renderLegend();
+}
+document.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.mode)));
+
+// 패널: 부이 권역별 요약 (행 = 지표, 열 = 부이)
+const SUM = Object.fromEntries(DATA.summary.map((r) => [r["관측소"], r]));
+const METRICS = [
+  ["구간 수", (r) => fmt(r["구간수"])],
+  ["해안 길이 (km)", (r) => fmt(r["해안길이_km"], 1)],
+  ["유의파고 임계 (m)", (r) => fmt(r["파고임계_m"], 1), true],
+  ["파랑노출 W", (r) => fmt(r["W_파랑노출"], 3), true],
+  ["평균 위험지수 R", (r) => fmt(r["평균위험지수"], 3)],
+  ["위험 4·5등급 구간", (r) => fmt(r["위험등급45_구간"])],
+  ["CCTV 가시율 (설치대상, %)", (r) => fmt(r["설치대상_보수적가시율_pct"], 1)],
+  ["연안사고 (건)", (r) => fmt(r["연안사고_1km"])],
+  ["그중 악기상 (건 · %)", (r) => `${fmt(r["악기상사고_1km"])} · ${fmt(r["악기상비율_pct"], 1)}`],
+  ["신규 상위 50곳", (r) => fmt(r["신규상위50"])],
+];
+STATIONS.forEach((s, i) => {
+  document.getElementById(`th-${i}`).innerHTML =
+    `<button type="button" class="stbtn" id="stbtn-${i}" data-st="${s}" aria-pressed="false"><span class="bar" style="background:var(${ST_VAR[s]})"></span>${s}<span class="sub">${SUM[s]["노출그룹"]}</span></button>`;
+});
+document.getElementById("st-body").innerHTML = METRICS.map(([label, f, key]) =>
+  `<tr class="${key ? "key" : ""}"><td>${label}</td>${STATIONS.map((s) => `<td>${f(SUM[s])}</td>`).join("")}</tr>`).join("");
+
+function setFocus(s) {
+  focusStation = s;
+  document.querySelectorAll(".stbtn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.st === s)));
+  segLayer.setStyle(segStyle);
+  map.flyToBounds(s ? zoneBounds[s] : allBounds, { padding: [24, 24], duration: matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 0.6 });
+  document.getElementById("maptag").textContent = s ? `${s} 권역 강조 중 · 다른 권역은 흐리게` : "구간을 누르면 상세 값이 보입니다";
+}
+document.querySelectorAll(".stbtn").forEach((b) => b.addEventListener("click", () => setFocus(focusStation === b.dataset.st ? null : b.dataset.st)));
+document.getElementById("reset").addEventListener("click", () => setFocus(null));
+
+// 패널: 사고 당시 기상상태
+const meta = DATA.meta;
+const wx = Object.entries(meta.wx_counts);
+const ok = meta.wx_counts["양호"] ?? 0;
+const bad = wx.filter(([k]) => k !== "양호").sort((a, b) => b[1] - a[1]);
+const badTotal = bad.reduce((a, [, v]) => a + v, 0);
+const badMax = Math.max(...bad.map(([, v]) => v));
+document.getElementById("wx-ok").innerHTML = `<span class="mk-inline" style="background:var(--acc-ok)"></span>양호 <span class="num">${fmt(ok)}</span>건 · <span class="mk-inline" style="background:var(--acc-bad)"></span>악기상 <strong class="num">${fmt(badTotal)}</strong>건 (${fmt(100 * badTotal / meta.accidents, 1)}%)`;
+document.getElementById("wx-years").textContent = `${meta.years[0]}–${meta.years[1]} · 전체 ${fmt(meta.accidents)}건`;
+document.getElementById("wx-bars").innerHTML = bad.map(([k, v]) =>
+  `<div class="row" title="${k} ${v}건"><span>${k}</span><span class="track"><span class="fill" style="display:block;width:${(100 * v / badMax).toFixed(1)}%"></span></span><span class="v num">${v}</span></div>`).join("");
+document.getElementById("acc-unmatched").textContent = fmt(meta.accidents - meta.acc_matched);
+
+// 레이어 토글
+function syncLayers() {
+  const accOn = document.getElementById("acc-on").checked;
+  document.getElementById("acc-filter").disabled = !accOn;
+  accOn ? accLayer.addTo(map) : map.removeLayer(accLayer);
+  document.getElementById("site-on").checked ? siteLayer.addTo(map) : map.removeLayer(siteLayer);
+}
+document.getElementById("acc-on").addEventListener("change", syncLayers);
+document.getElementById("acc-filter").addEventListener("change", drawAccidents);
+document.getElementById("site-on").addEventListener("change", syncLayers);
+document.getElementById("base-on").addEventListener("change", (e) => setBase(e.target.checked));
+
+// 테마가 바뀌면 캔버스 색을 다시 칠함
+function repaint() {
+  segLayer.setStyle(segStyle);
+  drawAccidents();
+  if (baseLayer) setBase(true);
+}
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", repaint);
+new MutationObserver(repaint).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+renderLegend();
+drawAccidents();
+drawSites();
+syncLayers();
+</script>

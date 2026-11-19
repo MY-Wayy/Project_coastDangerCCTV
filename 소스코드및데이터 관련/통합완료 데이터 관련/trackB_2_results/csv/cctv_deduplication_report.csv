@@ -1,0 +1,4 @@
+﻿source,input_locations,duplicates_within_20m,new_locations_added,median_duplicate_distance_m
+BUSAN_ITS_2026,315,21,294,11.27
+BUSAN_TRAFFIC_API_EXISTING,238,214,24,0.0
+DISASTER_WARNING_CCTV,81,20,61,9.81

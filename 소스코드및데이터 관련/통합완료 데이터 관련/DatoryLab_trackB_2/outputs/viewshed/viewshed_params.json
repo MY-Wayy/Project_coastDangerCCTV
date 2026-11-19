@@ -1,0 +1,10 @@
+{
+  "coast_search_m": 1000.0,
+  "mount_height_m": 6.0,
+  "mount_height_traffic_m": 8.0,
+  "target_height_m": 1.6,
+  "view_range_m": 300.0,
+  "default_fov_deg": 360.0,
+  "fixed_unknown_fov_deg": 60.0,
+  "target_zone_m": 100.0
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>fig00</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;height:1060px;background:#fff;font-family:Pretendard,"Apple SD Gothic Neo",sans-serif;color:#1F2937;padding:40px 50px 30px;overflow:hidden}
+.head{display:flex;align-items:center;gap:18px}
+.badge{background:#E8650B;color:#fff;font-weight:700;font-size:17px;padding:8px 18px;border-radius:999px;white-space:nowrap}
+h1{font-size:30px;font-weight:700;letter-spacing:-0.3px}
+.src{color:#6B7280;font-size:15px;margin-top:14px;padding-bottom:16px;border-bottom:1px solid #E5E7EB}
+.kpis{display:flex;gap:40px;margin-top:22px}
+.kpi{flex:1;border:1.5px solid;border-radius:12px;padding:14px 18px 12px}
+.kpi .t{display:flex;align-items:center;gap:16px}
+.kpi .tag{font-size:14px;font-weight:700;padding:5px 12px;border-radius:6px}
+.kpi .v{font-size:34px;font-weight:800;letter-spacing:-0.5px}
+.kpi .s{font-size:14px;margin-top:8px}
+.k1{border-color:#DCE3EA;background:#F8FAFC}.k1 .tag{background:#E0F2FE;color:#0369A1}.k1 .v{color:#1F2937}.k1 .s{color:#4B5563}
+.k2{border-color:#F8C89A;background:#FFF7ED}.k2 .tag{background:#FFEDD5;color:#C2410C}.k2 .v{color:#E8650B}.k2 .s{color:#C2410C}
+.k3{border-color:#FCA5A5;background:#FFF1F2}.k3 .tag{background:#FEE2E2;color:#B91C1C}.k3 .v{color:#D32F2F}.k3 .s{color:#B91C1C}
+.legend{display:flex;gap:36px;margin:22px 0 2px 12px;font-size:15px;color:#4B5563}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:18px;height:18px;border-radius:4px}
+svg{display:block}
+.note{margin-top:8px;border:1.5px solid #F8C89A;background:#FFF7ED;border-radius:10px;padding:14px 20px;font-size:15px;line-height:1.75;color:#1F2937}
+.note .h{display:flex;align-items:center;gap:14px;font-weight:700;font-size:17px;margin-bottom:6px}
+.note .tag{background:#FFEDD5;color:#C2410C;font-size:14px;padding:4px 10px;border-radius:6px}
+.note b{color:#C2410C}
+</style></head>
+<body>
+<div class="head"><span class="badge">분석 배경 [연도별 통계]</span><h1>부산 해역 연도별 해양사고 발생 추이 (2015~2024년)</h1></div>
+<p class="src">출처: 행정안전부 생활안전지도 해양사고발생현황 (2015~2024년 10개년, 총 $N건 전수 공간 매칭 분석)</p>
+<div class="kpis">
+<div class="kpi k1"><div class="t"><span class="tag">10개년 총 발생</span><span class="v">$N건</span></div><div class="s">• 10개년 연평균 $avg10건 발생 (일평균 약 $daily건)</div></div>
+<div class="kpi k2"><div class="t"><span class="tag">2018~2024 평균</span><span class="v">$late건/년</span></div><div class="s">• 2015~17년($early건) 대비 $late_up 증가 (200건대 고착)</div></div>
+<div class="kpi k3"><div class="t"><span class="tag">2024년 최신 현황</span><span class="v">$y24건</span></div><div class="s">• 전년($y23건) 대비 $yoy24 급증 (10개년 중 역대 2위)</div></div>
+</div>
+<div class="legend">
+<span><i style="background:#9CA3AF"></i>2015~17년 초기 (평균 $early건)</span>
+<span><i style="background:#3B82F6"></i>2018년 이후 200건대 고착화 (평균 $late건)</span>
+<span style="color:#D32F2F"><i style="background:#E53935"></i>2021년 역대 최고 ($y21건)</span>
+<span style="color:#C2410C"><i style="background:#E8650B"></i>2024년 최근 급증세 ($y24건, 전년비 $yoy24)</span>
+<span style="color:#C2410C"><i style="background:none;border-top:3px dashed #E8650B;height:0;width:22px;border-radius:0"></i>연간 200건 위험 기준선</span>
+</div>
+<svg width="1500" height="500" viewBox="0 0 1500 500" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif">
+$svg
+</svg>
+<div class="note">
+<div class="h"><span class="tag">💡 해양사고 시계열 핵심 분석</span>왜 지금 신규 CCTV 최적 설치 및 감시 방향 설계가 필요한가?</div>
+① [200건대 고착화] 2018년 이후 연안 레저·낚시 인구 증가 및 해양 활동 다변화로 연간 200건 이상의 사고가 매년 지속 발생 (10개년 총 $N건)<br>
+<b>② [2024년 급증세] 2024년 발생 사고가 $y24건으로 전년 대비 $yoy24 급증하며 역대 2위 기록 → 연안 안전망의 구조적 보강 시급</b><br>
+③ [상시 감시망 필요] 사고의 $good_p가 '기상 양호(평시)'에 발생하므로, 기존 CCTV가 닿지 않는 사각지대($blind_p)에 최적 신규 CCTV를 설치하고 위험 해안선을 향한 각도 설계 필수
+</div>
+</body></html>

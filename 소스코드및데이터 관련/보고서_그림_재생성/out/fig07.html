@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>fig07</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;height:900px;background:#fff;font-family:Pretendard,"Apple SD Gothic Neo",sans-serif;color:#1F2937;padding:46px 50px;overflow:hidden}
+.head{display:flex;align-items:center;gap:18px}
+.badge{background:#E8650B;color:#fff;font-weight:700;font-size:17px;padding:8px 18px;border-radius:999px;white-space:nowrap}
+h1{font-size:28px;font-weight:700;letter-spacing:-0.3px}
+.sub{color:#6B7280;font-size:16px;margin-top:14px;padding-bottom:16px;border-bottom:1px solid #E5E7EB}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:22px;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden;font-size:16px}
+th{background:#1E2A3A;color:#fff;font-weight:600;text-align:left;padding:18px}
+td{padding:20px 18px;border-top:1px solid #EEF0F3;background:#fff}
+tr:nth-child(even) td{background:#F8FAFC}
+.red{color:#D32F2F;font-weight:700}.org{color:#E8650B;font-weight:700}.b{font-weight:700}
+.box{margin-top:30px;border:2px solid #F3B4B4;background:#FFF5F5;border-radius:12px;padding:18px 24px 22px}
+.box h2{font-size:20px;font-weight:700}
+.box .def{font-size:14px;color:#4B5563;margin:10px 0 14px}
+.cards{display:flex;gap:26px}
+.card{flex:1;background:#fff;border:1.5px solid #F7C6C6;border-radius:10px;padding:20px 20px}
+.card .l{font-size:15px;font-weight:700;margin-bottom:8px}
+.card .v{font-size:30px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px}
+.card .s{font-size:13px;color:#6B7280}
+.blu{color:#1E5BD1}
+</style></head>
+<body>
+<div class="head"><span class="badge">분석 결과 ②</span><h1>해안유형별 위험도·사각지대 분포 및 핵심 사각지대(v4 34구간)의 2D 반경 착시</h1></div>
+<p class="sub">방파제·테트라포드(위험지수 0.808)와 항포구(0.785)에 고위험이 집중되며, 갯바위는 50.6%가 완전 사각지대</p>
+<table>
+<thead><tr><th>해안유형 (육지 설치대상 1,464구간)</th><th>구간 수</th><th>유형위험(T)</th><th>파랑노출(W)</th><th>평균 위험지수</th><th>고위험(4·5등급) 비율</th><th>완전 사각(0%) 비율</th></tr></thead>
+<tbody>
+<tr><td class="red">방파제 · 테트라포드</td><td>137구간</td><td>0.90</td><td>0.78</td><td class="red">0.808 (최고)</td><td class="red">72.3% (99구간)</td><td class="">24.8% (34구간)</td></tr>
+<tr><td class="org">항포구</td><td>180구간</td><td>1.00</td><td>0.67</td><td class="org">0.785 (2위)</td><td class="org">59.4% (107구간)</td><td class="">17.8% (32구간)</td></tr>
+<tr><td class="b">갯바위</td><td>350구간</td><td>0.31</td><td>0.78</td><td class="">0.473</td><td class="">0.0% (3등급 집중)</td><td class="red">50.6% (177구간)</td></tr>
+<tr><td class="">해안가 (모래·자갈 등)</td><td>718구간</td><td>0.29</td><td>0.70</td><td class="">0.434</td><td class="">0.0%</td><td class="">31.9% (229구간)</td></tr>
+<tr><td class="">미분류 (기암·암벽 등)</td><td>79구간</td><td>0.47</td><td>0.47</td><td class="">0.445</td><td class="">30.4% (24구간)</td><td class="">35.4% (28구간)</td></tr>
+</tbody></table>
+<div class="box">
+<h2>핵심 발견: 최우선 설치후보 34개 구간(cctv_candidates_v4)과 「2D 500m 반경의 착시」</h2>
+<p class="def">• 정의: 육지부 설치 대상(1,464구간) 중 위험등급 4·5등급(고위험)이면서 보수적 3D 가시 커버율이 0.0%인 완전 사각지대 34구간</p>
+<div class="cards">
+<div class="card"><div class="l red">① 500m 반경 내 CCTV 존재 비율</div><div class="v red">29.4% (10 / 34구간)</div><div class="s">2D 반경으론 '안전'으로 분류되나 실제 가시율 0% · 나머지 24구간(70.6%)은 500m 내 CCTV 자체가 없음</div></div>
+<div class="card"><div class="l org">② 핵심 사각 34구간의 해안유형</div><div class="v org">방파제·테트라포드 70.6%</div><div class="s">방파제 24구간 · 미분류(암벽) 6구간 · 항포구 4구간</div></div>
+<div class="card"><div class="l blu">③ 핵심 사각 34구간의 지역·기상 분포</div><div class="v blu">외해 100% (기장 19 · 남구 6)</div><div class="s">기장(19) · 남구(6) · 영도(3) · 중구(2) · 서구(2) · 동구(1) · 해운대(1)</div></div>
+</div></div>
+</body></html>

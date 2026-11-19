@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>panel_result</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1368px;height:765px;background:#fff;font-family:Pretendard,"Apple SD Gothic Neo",sans-serif;color:#1F2937;overflow:hidden;position:relative}
+.head{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:10px}
+.badge{background:#E8650B;color:#fff;font-weight:700;font-size:8px;padding:4px 9px;border-radius:999px;white-space:nowrap}
+h1{font-size:15.5px;font-weight:700;letter-spacing:-0.3px}
+.sub{position:absolute;left:14px;top:46px;color:#6B7280;font-size:7.5px}
+.left{position:absolute;left:14px;top:70px;width:664px}
+.legend{display:flex;gap:22px;font-size:7.5px;color:#374151;margin:6px 0 4px 2px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px}
+.bars{margin-top:2px}
+.row{display:flex;align-items:center;height:27px;font-size:7.5px}
+.row .lab{width:106px;color:#374151;white-space:nowrap}
+.row .track{width:378px;height:13px;background:#D7DBE0;border-radius:3px;position:relative;overflow:hidden}
+.row .track .f3{position:absolute;left:0;top:0;height:100%;background:#E8650B;border-radius:3px}
+.row .track .f2{position:absolute;left:0;top:0;height:100%;background:#D7DBE0}
+.row .track .gap{position:absolute;right:0;top:0;height:100%;background:#fff}
+.row .val{flex:1;text-align:right;color:#374151;white-space:nowrap;padding-right:4px}
+.row.red .val{color:#D32F2F;font-weight:600}
+.row.total{border:1.5px solid #F3B47B;background:#FFF7ED;border-radius:5px;margin-top:4px;height:29px;padding:0 4px 0 2px}
+.row.total .lab{font-weight:700;color:#1F2937}
+table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px;border:1px solid #E5E7EB;border-radius:5px;overflow:hidden;font-size:7.5px}
+th{background:#1E2A3A;color:#fff;font-weight:600;text-align:left;padding:8px 7px}
+td{padding:9.5px 7px;border-top:1px solid #EEF0F3;background:#fff}
+tr:nth-child(even) td{background:#F8FAFC}
+.red{color:#D32F2F;font-weight:700}.org{color:#E8650B;font-weight:700}.b{font-weight:700}.blu{color:#1E5BD1}
+.box{margin-top:13px;border:1.5px solid #F3B4B4;background:#FFF5F5;border-radius:6px;padding:9px 11px 11px}
+.box h2{font-size:9.5px;font-weight:700}
+.box .def{font-size:6.5px;color:#4B5563;margin:5px 0 7px}
+.cards{display:flex;gap:9px}
+.card{flex:1;background:#fff;border:1px solid #F7C6C6;border-radius:5px;padding:8px 9px}
+.card .l{font-size:6.5px;font-weight:700;margin-bottom:3px}
+.card .v{font-size:14px;font-weight:800;margin-bottom:4px;letter-spacing:-0.4px;white-space:nowrap}
+.card .s{font-size:6px;color:#6B7280}
+.map{position:absolute;left:684px;top:71px;width:684px;height:625px}
+.map img{width:100%;height:100%;display:block}
+</style></head>
+<body>
+<div class="head"><span class="badge">분석 결과 ①</span><h1>구·군별 기존 CCTV 분포 현황: 2D 500m 반경(70.6%) vs 3D 실제 가시율(25.1%)</h1></div>
+<p class="sub">연한 회색: 단순 2D 500m 반경 기준 커버율 / 진한 주황색: 3D 지형·화각·목적 3분류 반영 실제 가시 커버율 (나머지는 미커버 사각지대)</p>
+<div class="left">
+<div class="legend"><span><i style="background:#E8650B"></i>3D 실제 가시 커버율 (기존 CCTV 3분류 반영)</span><span><i style="background:#D7DBE0"></i>기존 2D 500m 반경 커버율 (지형 차폐·화각 미반영 시 과대평가 구간)</span></div>
+<div class="bars">
+<div class="row"><div class="lab">수영구 (22구간·118ha)</div><div class="track"><div class="gap" style="width:0.0%"></div><div class="f3" style="width:99.6%"></div></div><div class="val">2D반경 100.0% → 실제가시 99.6% (사각 0.4%)</div></div>
+<div class="row"><div class="lab">기장군 (502구간·808ha)</div><div class="track"><div class="gap" style="width:16.5%"></div><div class="f3" style="width:57.2%"></div></div><div class="val">2D반경 83.5% → 실제가시 57.2% (사각 42.8%)</div></div>
+<div class="row"><div class="lab">중구 (19구간·94ha)</div><div class="track"><div class="gap" style="width:10.5%"></div><div class="f3" style="width:52.3%"></div></div><div class="val">2D반경 89.5% → 실제가시 52.3% (사각 47.7%)</div></div>
+<div class="row"><div class="lab">해운대구 (118구간·273ha)</div><div class="track"><div class="gap" style="width:0.0%"></div><div class="f3" style="width:39.9%"></div></div><div class="val">2D반경 100.0% → 실제가시 39.9% (사각 60.1%)</div></div>
+<div class="row"><div class="lab">서구 (56구간·259ha)</div><div class="track"><div class="gap" style="width:26.8%"></div><div class="f3" style="width:39.0%"></div></div><div class="val">2D반경 73.2% → 실제가시 39.0% (사각 61.0%)</div></div>
+<div class="row red"><div class="lab">영도구 (178구간·599ha)</div><div class="track"><div class="gap" style="width:25.8%"></div><div class="f3" style="width:26.7%"></div></div><div class="val">2D반경 74.2% → 실제가시 26.7% (사각 73.3%)</div></div>
+<div class="row red"><div class="lab">남구 (118구간·493ha)</div><div class="track"><div class="gap" style="width:19.5%"></div><div class="f3" style="width:15.1%"></div></div><div class="val">2D반경 80.5% → 실제가시 15.1% (사각 84.9%)</div></div>
+<div class="row red"><div class="lab">동구 (23구간·147ha)</div><div class="track"><div class="gap" style="width:17.4%"></div><div class="f3" style="width:14.2%"></div></div><div class="val">2D반경 82.6% → 실제가시 14.2% (사각 85.8%)</div></div>
+<div class="row red"><div class="lab">강서구 (460구간·1,886ha)</div><div class="track"><div class="gap" style="width:44.8%"></div><div class="f3" style="width:12.4%"></div></div><div class="val">2D반경 55.2% → 실제가시 12.4% (사각 87.6%)</div></div>
+<div class="row red"><div class="lab">사하구 (336구간·1,196ha)</div><div class="track"><div class="gap" style="width:47.6%"></div><div class="f3" style="width:12.2%"></div></div><div class="val">2D반경 52.4% → 실제가시 12.2% (사각 87.8%)</div></div>
+<div class="row red total"><div class="lab">부산 전체 (1,832구간·5,874ha)</div><div class="track"><div class="gap" style="width:29.4%"></div><div class="f3" style="width:25.1%"></div></div><div class="val">2D반경 70.6% → 실제가시 25.1% (사각 74.9%)</div></div>
+</div>
+<table>
+<thead><tr><th>해안유형 (육지 설치대상 1,464구간)</th><th>구간 수</th><th>유형위험(T)</th><th>파랑노출(W)</th><th>평균 위험지수</th><th>고위험(4·5등급) 비율</th><th>완전 사각(0%) 비율</th></tr></thead>
+<tbody>
+<tr><td class="red">방파제 · 테트라포드</td><td>137구간</td><td>0.90</td><td>0.78</td><td class="red">0.808 (최고)</td><td class="red">72.3% (99구간)</td><td class="">24.8% (34구간)</td></tr>
+<tr><td class="org">항포구</td><td>180구간</td><td>1.00</td><td>0.67</td><td class="org">0.785 (2위)</td><td class="org">59.4% (107구간)</td><td class="">17.8% (32구간)</td></tr>
+<tr><td class="b">갯바위</td><td>350구간</td><td>0.31</td><td>0.78</td><td class="">0.473</td><td class="">0.0% (3등급 집중)</td><td class="red">50.6% (177구간)</td></tr>
+<tr><td class="">해안가 (모래·자갈 등)</td><td>718구간</td><td>0.29</td><td>0.70</td><td class="">0.434</td><td class="">0.0%</td><td class="">31.9% (229구간)</td></tr>
+<tr><td class="">미분류 (기암·암벽 등)</td><td>79구간</td><td>0.47</td><td>0.47</td><td class="">0.445</td><td class="">30.4% (24구간)</td><td class="">35.4% (28구간)</td></tr>
+</tbody></table>
+<div class="box">
+<h2>핵심 발견: 최우선 설치후보 34개 구간(cctv_candidates_v4)에서 확인된 「2D 500m 반경의 착시」</h2>
+<p class="def">• 정의: 육지부 설치 대상(1,464구간) 중 위험등급 4·5등급(고위험)이면서 보수적 3D 가시 커버율이 0.0%인 완전 사각지대 34구간</p>
+<div class="cards">
+<div class="card"><div class="l red">① 500m 반경 내 CCTV 존재 비율</div><div class="v red">29.4% (10 / 34구간)</div><div class="s">2D 반경으론 '안전'으로 분류되나 실제 가시율 0% · 나머지 24구간(70.6%)은 500m 내 CCTV 자체가 없음</div></div>
+<div class="card"><div class="l org">② 핵심 사각 34구간의 해안유형</div><div class="v org">방파제·테트라포드 70.6%</div><div class="s">방파제 24구간 · 미분류(암벽) 6구간 · 항포구 4구간</div></div>
+<div class="card"><div class="l blu">③ 핵심 사각 34구간의 지역·기상 분포</div><div class="v blu">외해 100% (기장 19 · 남구 6)</div><div class="s">기장(19) · 남구(6) · 영도(3) · 중구(2) · 서구(2) · 동구(1) · 해운대(1)</div></div>
+</div></div>
+</div>
+<div class="map"><img src="panel_result_map.png"></div>
+</body></html>

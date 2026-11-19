@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>fig01</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1600px;height:900px;background:#fff;font-family:Pretendard,"Apple SD Gothic Neo",sans-serif;color:#1F2937;padding:46px 50px;overflow:hidden}
+.head{display:flex;align-items:center;gap:18px}
+.badge{background:#E8650B;color:#fff;font-weight:700;font-size:17px;padding:8px 18px;border-radius:999px;white-space:nowrap}
+h1{font-size:28px;font-weight:700;letter-spacing:-0.3px}
+.src{color:#6B7280;font-size:15px;margin-top:14px;padding-bottom:16px;border-bottom:1px solid #E5E7EB}
+.cols{display:flex;gap:40px;margin-top:28px}
+.panel{flex:1;border:1px solid #E5E7EB;border-radius:12px;padding:24px 28px 22px;background:#fff;height:650px;position:relative}
+.panel h2{font-size:20px;font-weight:700}
+.panel .sub{font-size:14px;color:#6B7280;margin:8px 0 18px}
+.big{position:relative;height:60px;background:#E9EDF2;border-radius:12px;overflow:hidden}
+.big .fill{height:100%;background:#E8650B;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px}
+.big-note{text-align:right;font-size:14px;font-weight:700;color:#D32F2F;margin-top:6px}
+.rows{margin-top:30px}
+.row{display:flex;align-items:center;gap:16px;height:46px;margin-bottom:20px}
+.row .lab{width:260px;font-size:15px;font-weight:600}
+.row .track{flex:1;height:30px;background:#E9EDF2;border-radius:6px;overflow:hidden}
+.row .fill{height:100%;border-radius:6px}
+.row .val{width:150px;text-align:right;font-size:15px;font-weight:700;color:#4B5563}
+.org{color:#E8650B}.blu{color:#1E88E5}.gry{color:#6B7280}.red{color:#D32F2F}
+.note{position:absolute;left:28px;right:28px;bottom:22px;background:#FFF7ED;border:1.5px solid #F8C89A;border-radius:8px;padding:12px 16px;font-size:14px;font-weight:700;color:#9A3412;line-height:1.55}
+.kpis{display:flex;gap:26px;margin-bottom:28px}
+.kpi{flex:1;border:2px solid;border-radius:10px;padding:14px 18px}
+.kpi .l{font-size:14px;font-weight:700;margin-bottom:6px}
+.kpi .v{font-size:30px;font-weight:800;letter-spacing:-0.5px}
+.k1{border-color:#1E88E5}.k1 .l{color:#1E5BD1}
+.k2{border-color:#0F9D7A}.k2 .l{color:#0F766E}
+.h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.causes .row{height:40px;margin-bottom:14px}
+.causes .lab{width:300px}
+</style></head>
+<body>
+<div class="head"><span class="badge">분석 배경 ①</span><h1>부산 해역 해양사고($N건) 발생 특성: 왜 상시 CCTV 감시망이 필수적인가?</h1></div>
+<p class="src">출처: 행정안전부 생활안전지도 해양사고발생현황 (EPSG:5186 공간 매칭, 총 $N건 분석)</p>
+<div class="cols">
+<div class="panel">
+<h2>1. 기상 상태별 해양사고 발생 비율 (총 $N건)</h2>
+<p class="sub">기상특보(태풍·풍랑) 시점보다 평온한 '기상 양호' 상태에서 $good_p 발생</p>
+<div class="big"><div class="fill" style="width:$good_w%">기상 양호: $good건 ($good_p)</div></div>
+<div class="big-note">악천후 $bad_p ($bad건)</div>
+<div class="rows">
+$weather_rows
+</div>
+<div class="note">핵심 시사점: 기상특보 발령 시에만 작동하는 통제 시스템으로는 사고의 $good_p를<br>예방할 수 없으며, 항포구·방파제에 대한 24시간 상시 시각 감시(CCTV)가 필수적임</div>
+</div>
+<div class="panel">
+<h2>2. 발생 해역 및 주요 사고 원인 분포</h2>
+<p class="sub">항계 내($harbor_p)와 연안 영해($sea_p) 등 해안선 인접 구역에 $coast_p 집중</p>
+<div class="kpis">
+<div class="kpi k1"><div class="l">항계 내 (항포구·방파제 인접)</div><div class="v">$harbor건 ($harbor_p)</div></div>
+<div class="kpi k2"><div class="l">연안 영해 · 협수로</div><div class="v">$sea_strait건 ($sea_strait_p)</div></div>
+</div>
+<div class="h3">주요 사고 원인 상위 5개 (인적 요인 · 부주의 지배적)</div>
+<div class="causes">
+$cause_rows
+</div>
+</div>
+</div>
+</body></html>

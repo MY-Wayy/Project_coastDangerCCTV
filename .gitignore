@@ -1,0 +1,11 @@
+# macOS / Editor
+.DS_Store
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# GitHub 100MB 용량 제한 초과 대용량 원천 데이터 제외 (818MB)
+소스코드및데이터 관련/원천데이터/GIS건물통합정보_20261009/AL_D010_26_20261009.dbf
